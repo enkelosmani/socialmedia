@@ -6,23 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    protected $fillable=[
-        'title',
-        'content_id',
-        'user_id',
+    protected $fillable = [
+        'title', 'user_id', 'likes_count'
     ];
 
-    public function contents() {
-        return $this->hasMany(Content::class);
+    public function content() { // Change to singular 'content'
+        return $this->hasOne(Content::class);
     }
 
     public function user() {
         return $this->belongsTo(User::class);
     }
-    public function likes()
-    {
+
+    public function likes() {
         return $this->hasMany(Like::class);
     }
+
     public function comments() {
         return $this->hasMany(Comment::class);
     }

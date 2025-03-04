@@ -13,3 +13,4 @@ class PostRepository extends BaseRepository implements IPostRepository
     }
 
 }
+

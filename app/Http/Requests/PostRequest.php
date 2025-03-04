@@ -11,7 +11,8 @@ class PostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Allow authenticated users to create posts
+        return auth()->check(); // Or true if no auth is required for now
     }
 
     /**
@@ -22,9 +23,10 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'=>'required',
-            'content_id'=>'required',
-            'user_id'=>'required|unique:posts',
+            'title' => 'required|string|max:255',
+            'image' => 'nullable|image|max:2048',
+            'user_id' => 'nullable|exists:users,id',
+            'likes' => 'nullable|integer|min:0',
         ];
     }
 }

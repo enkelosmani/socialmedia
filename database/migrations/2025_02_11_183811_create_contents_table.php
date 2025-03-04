@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('contents', function (Blueprint $table) {
             $table->id();
-            $table->text('status');
-            $table->string('image')->nullable();
+            $table->unsignedBigInteger('post_id');
+            $table->json('data')->nullable();
             $table->timestamps();
         });
     }

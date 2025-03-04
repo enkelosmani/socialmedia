@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ContentRequest;
 use App\Http\Resources\ContentCollection;
 use App\Http\Resources\ContentResource;
 use App\Models\Content;
@@ -44,10 +45,10 @@ class ContentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ContentRequest $contentRequest)
     {
         try {
-            $content = $this->contentService->save($request);
+            $content = $this->contentService->save($contentRequest);
             return $this->created(new ContentResource($content));
         } catch (Exception $e) {
             return $this->respondError('Something went wrong', $e);

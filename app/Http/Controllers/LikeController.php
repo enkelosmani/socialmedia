@@ -1,60 +1,41 @@
 <?php
-
-
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\LikeRequest;
-use App\Http\Resources\LikeResource;
-use App\Http\Traits\Helpers\ApiResponseTrait;
-use App\Services\LikeService;
-use Exception;
+use App\Models\Like;
 use App\Models\Post;
+use Illuminate\Http\Request;
 
 class LikeController extends Controller
 {
-    use ApiResponseTrait;
-
-    protected $likeService;
-
-    public function __construct(LikeService $likeService)
+    public function store(Request $request, Post $post)
     {
-        $this->likeService = $likeService;
+        $user = $request->user(); // Get authenticated user
+
+        $like = Like::firstOrCreate([
+            'user_id' => $user->id,
+            'post_id' => $post->id,
+        ]);
+
+        $post->increment('likes_count');
+
+        return response()->json([
+            'message' => 'Post liked successfully',
+            'like' => $like
+        ], 201);
     }
 
-    /**
-     * Like a post.
-     */
-    public function store(LikeRequest $request, Post $post)
+    public function destroy(Request $request, Post $post)
     {
-        try {
-            $like = $this->likeService->likePost($request->user_id, $post->id);
+        $user = $request->user();
+        $like = Like::where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->first();
 
-            if (!$like) {
-                return $this->respondError('You have already liked this post.', null, 409);
-            }
-
-            return $this->created(new LikeResource($like));
-        } catch (Exception $e) {
-            return $this->respondError('Something went wrong', $e);
+        if ($like) {
+            $like->delete();
+            $post->decrement('likes_count');
+            return response()->json(['message' => 'Post unliked successfully'], 200);
         }
-    }
-
-    /**
-     * Unlike a post.
-     */
-    public function destroy(LikeRequest $request, Post $post)
-    {
-        try {
-            $unliked = $this->likeService->unlikePost($request->user_id, $post->id);
-
-            if (!$unliked) {
-                return $this->notFound('Like not found');
-            }
-
-            return $this->deleted(new EmptyResource());
-        } catch (Exception $e) {
-            return $this->respondError('Something went wrong', $e);
-        }
+        return response()->json(['message' => 'Like not found'], 404);
     }
 }

@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Content extends Model
 {
-    protected $fillable=[
-        'status',
-        'image',
+    protected $fillable = [
+        'post_id',
+        'data'
+    ];
+
+    protected $casts = [
+        'data' => 'array', // Cast JSON to array
     ];
 
     public function post() {

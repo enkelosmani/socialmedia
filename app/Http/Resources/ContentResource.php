@@ -13,8 +13,7 @@ class ContentResource extends AbstractJsonResource
     {
         return [
             'id'=>$this->id,
-            'status'=>$this->status,
-            'image'=>$this->image,
+            'image' => $this->image ? asset('storage/' . $this->image) : null,
         ];
     }
 }

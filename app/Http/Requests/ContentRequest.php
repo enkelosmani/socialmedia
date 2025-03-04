@@ -22,8 +22,8 @@ class ContentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'=>'required|unique:contents',
-            'image'=>'required',
+            'post_id' => 'required|integer|exists:posts,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

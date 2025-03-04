@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\EmptyResource;
 use App\Http\Resources\PostResource;
-use App\Models\Post;
 use App\Http\Resources\PostCollection;
 use App\Services\PostService;
 use Exception;
-use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
@@ -20,9 +18,6 @@ class PostController extends Controller
         $this->postService = $postService;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         try {
@@ -36,18 +31,7 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(PostRequest $request) // Changed to PostRequest
     {
         try {
             $post = $this->postService->save($request);
@@ -57,9 +41,6 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         try {
@@ -73,18 +54,7 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Post $post)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(PostRequest $request, $id) // Optional: Use PostRequest here too
     {
         try {
             $post = $this->postService->find($id);
@@ -98,17 +68,21 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         try {
             $post = $this->postService->find($id);
-            if ($post) {
-                $this->postService->delete($id);
-                return $this->deleted(new EmptyResource());
+            if (!$post) {
+                return $this->notFound();
             }
+
+            // Check if the authenticated user owns the post
+            if (auth()->user()->id !== $post->user_id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $this->postService->delete($id);
+            return response()->json(null, 204); // Return 204 No Content
         } catch (Exception $e) {
             return $this->respondError('Something went wrong', $e);
         }
